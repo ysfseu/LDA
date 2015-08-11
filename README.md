@@ -15,7 +15,8 @@ Some notes:
   rowTotals <- apply(dtm , 1, sum)
   dtm<- dtm[rowTotals> 0, ]
   ```
- * apps structure is like following:
+* apps structure is like following:
+
    ```
    str(apps)
    chr [1:17517] "35 44 33 40 33 40 44 38 33 37 37" ... 
