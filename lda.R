@@ -25,4 +25,13 @@ apps.topics=posterior(lda.model,dtm)$topics
 df.apps.topics=as.data.frame(apps.topics)
 df.apps.topics = cbind(app=as.character(rownames(df.apps.topics)), 
                        df.apps.topics, stringsAsFactors=F)
+#get the document which is above 60% related to topic 1
 sample(which(df.apps.topics$"1" > .6), 10)
+# predict
+test<-dtm[1:100,]
+test.topics <- posterior(lda.model,test)
+# select the topic with the highest proportion.
+(test.topics <- apply(test.topics$topics, 1, which.max))
+
+
+
