@@ -1,7 +1,7 @@
 library(tm)
 library(topicmodels)
 #read data
-dataframe<-read.table("./data/app_cate.log",encoding = "UTF-8",sep='\t',as.is = TRUE)
+dataframe<-read.table("./data/app_inst_filter2.log",encoding = "UTF-8",sep='\t',as.is = TRUE)
 #preprocess data
 names(dataframe)<-c("user_id","apps")
 apps<-dataframe$apps
@@ -17,16 +17,18 @@ corpus<-Corpus(VectorSource(apps))
 dtm<-DocumentTermMatrix(corpus,control=list(wordLengths=c(1,Inf)))
 #delete rows without terms
 rowTotals <- apply(dtm , 1, sum)
-dtm<- dtm[rowTotals> 0, ] 
+dtm<- dtm[rowTotals> 0, ]
+dataframe<- dataframe[rowTotals> 0, ]
 k = 5
-lda.model = LDA(dtm, k,control = list(em = list(iter.max = 1000, tol = 10^-4)))
+lda.model = LDA(dtm, k,control = list(em = list(iter.max = 200, tol = 10^-4)))
 
 apps.topics=posterior(lda.model,dtm)$topics
 df.apps.topics=as.data.frame(apps.topics)
-df.apps.topics = cbind(app=as.character(rownames(df.apps.topics)), 
+df.apps.topics = cbind(userid=dataframe[,1], 
                        df.apps.topics, stringsAsFactors=F)
-#get the document which is above 60% related to topic 1
-sample(which(C > .6), 10)
+#get the doc and its topic
+topics<- apply(df.apps.topics[,c(2:(k+1))], 1, which.max)
+doc_topics<-cbind(dataframe[,1],topics) 
 # predict
 test<-dtm[1:100,]
 test.topics <- posterior(lda.model,test)
@@ -34,9 +36,9 @@ test.topics <- posterior(lda.model,test)
 (test.topics <- apply(test.topics$topics, 1, which.max))
 
 #Get the nt highest terms for each topic.And map the terms' id to its real names.
-nt<-5
+nt<-15
 apps.terms<-terms(lda.model,nt)
-map<-read.table("./data/map",encoding = "UTF-8",sep=' ',as.is = TRUE)
+map<-read.table("./data/cate_id.log",encoding = "UTF-8",sep=',',as.is = TRUE)
 names(map)<-c("id","name")
 apps.terms<-data.frame(apps.terms)
 index<-data.frame(matrix(ncol = k,nrow = nt))
