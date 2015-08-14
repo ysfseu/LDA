@@ -3,7 +3,9 @@ library(topicmodels)
 #read data
 dataframe<-read.table("./data/app_inst_filter2.log",encoding = "UTF-8",sep='\t',as.is = TRUE)
 #preprocess data
+dataframe<-dataframe[!duplicated(dataframe), ]
 names(dataframe)<-c("user_id","apps")
+
 apps<-dataframe$apps
 apps <- gsub("[[:punct:]]", " ", apps)  # replace punctuation with space
 apps <- gsub("[[:cntrl:]]", " ", apps)  # replace control characters with space
