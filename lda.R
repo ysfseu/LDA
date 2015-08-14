@@ -22,7 +22,7 @@ rowTotals <- apply(dtm , 1, sum)
 dtm<- dtm[rowTotals> 0, ]
 dataframe<- dataframe[rowTotals> 0, ]
 k = 5
-lda.model = LDA(dtm, k,control = list(em = list(iter.max = 200, tol = 10^-4)))
+lda.model = LDA(dtm, k,method = "Gibbs",control = list(iter= 200))
 
 apps.topics=posterior(lda.model,dtm)$topics
 df.apps.topics=as.data.frame(apps.topics)

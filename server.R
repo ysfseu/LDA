@@ -17,20 +17,18 @@ default_topic<-function(k,nt,lda){
   }
   return(topicmap)
 }
-default_lda<- LDA(dtm, 5,control = list(em = list(iter.max = 100, tol = 10^-4)))
+default_lda<- LDA(dtm, 5,method= "Gibbs",control = list(iter = 100))
 
 shinyServer(
   function(input, output) {
-    lda<-eventReactive(input$learn,{
-      lda<- LDA(dtm, input$k,control = list(em = list(iter.max = input$iter, tol = 10^-4)))
-      return(lda)
+    observeEvent(input$learn,{
+      default_lda<<- LDA(dtm,input$k,method= "Gibbs",control = list(iter = input$iter))
     })
     
     topic_terms<- reactive({
       nt<-input$nt
-      lda<-lda()
-      k<-lda@k
-      apps.terms<-terms(lda,nt)
+      k<-default_lda@k
+      apps.terms<-terms(default_lda,nt)
       apps.terms<-data.frame(apps.terms)
       index<-data.frame(matrix(ncol = k,nrow = nt))
       for(i in 1:k)
@@ -57,9 +55,8 @@ shinyServer(
     }, include.rownames=FALSE)
     doc_topic<-eventReactive(input$learn,{
       
-      lda<-lda()
-      k<-lda@k
-      apps.topics=posterior(lda,dtm)$topics
+      k<-default_lda@k
+      apps.topics=posterior(default_lda,dtm)$topics
       df.apps.topics=as.data.frame(apps.topics)
       df.apps.topics = cbind(userid=dataframe[,1], df.apps.topics, stringsAsFactors=F)
       #get the doc and its topic
