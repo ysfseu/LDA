@@ -21,3 +21,4 @@ Some notes:
    str(apps)
    chr [1:17517] "35 44 33 40 33 40 44 38 33 37 37" ... 
    ```
+* There is also a lda test platform writing in shiny. 
