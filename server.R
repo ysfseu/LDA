@@ -22,7 +22,7 @@ default_lda<- LDA(dtm, 5,method= "Gibbs",control = list(iter = 100))
 shinyServer(
   function(input, output) {
     observeEvent(input$learn,{
-      default_lda<<- LDA(dtm,input$k,method= "Gibbs",control = list(iter = input$iter))
+      default_lda<<- LDA(dtm,input$k,method= input$method,control = list(iter = input$iter))
     })
     
     topic_terms<- reactive({
