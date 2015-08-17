@@ -1,7 +1,7 @@
 library(tm)
 library(topicmodels)
 #read data
-dataframe<-read.table("./data/app_inst_filter2.log",encoding = "UTF-8",sep='\t',as.is = TRUE)
+dataframe<-read.table("./data/system",encoding = "UTF-8",sep='\t',as.is = TRUE)
 #preprocess data
 dataframe<-dataframe[!duplicated(dataframe), ]
 names(dataframe)<-c("user_id","apps")
@@ -54,4 +54,5 @@ for(i in 1:k)
   topicmap<-cbind(topicmap,map[index[,i],2])
 }
 
+clusters<-kmeans(lda.model@gamma,5)
 

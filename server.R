@@ -1,7 +1,8 @@
 library(tm)
 library(topicmodels)
-library(recharts)
 source("dataProcess.R")
+palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
+          "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
 default_topic<-function(k,nt,lda){
   apps.terms<-terms(lda,nt)
   apps.terms<-data.frame(apps.terms)
@@ -24,7 +25,12 @@ shinyServer(
     observeEvent(input$learn,{
       default_lda<<- LDA(dtm,input$k,method= input$method,control = list(iter = input$iter))
     })
-    
+    output$xcol<- renderUI({
+      selectInput('xcol', 'X Variable', c(1:default_lda@k),c(1:default_lda@k)[[1]])
+    })
+    output$ycol<- renderUI({
+      selectInput('ycol', 'Y Variable', c(1:default_lda@k),c(1:default_lda@k)[[2]])
+    })
     topic_terms<- reactive({
       nt<-input$nt
       k<-default_lda@k
@@ -81,6 +87,20 @@ shinyServer(
       topics%>%ggvis(x = ~topic_id,y= ~count) %>% layer_bars(fillOpacity := 0.5)%>% add_axis("x",title="Topic Number")%>%add_axis("y",title="Device Count")
     })
      topic_count%>%bind_shiny("topic_count")
+     selectedData <- reactive({
+       default_lda@gamma[, c(as.numeric(input$xcol),as.numeric(input$ycol))]
+     })
+     clusters <- reactive({
+       kmeans(default_lda@gamma, input$clusters)
+     })
+     
+     output$plot1 <- renderPlot({
+       par(mar = c(5.1, 4.1, 0, 1))
+       plot(selectedData(),
+            col = clusters()$cluster,
+            pch = 20, cex = 3)
+       points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
+     })
      
   }
   
